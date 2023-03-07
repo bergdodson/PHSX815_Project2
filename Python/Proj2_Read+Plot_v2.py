@@ -76,7 +76,39 @@ def stats(events):
     #Return all calculated quantities that were initialized
     return mean, median, sig1, sig2, sig3; 
     
+def theory_Plot(theorytitle, savename, theoryevents, theoryavg = -1, theorymedian = -1, theorysig1 = [-1, -1], theorysig2 = [-1, -1], theorysig3 = [-1, -1]):
+    #Find the number of bins in the histogram
+    maxval = max(theoryevents)
+    minval = min(theoryevents)
+    nbins = int(maxval - minval)
     
+    #Making the histogram with the data
+    n, bins, patches = plt.hist(theoryevents, nbins, density = True, facecolor='g', alpha=0.75)
+    plt.xlabel('Hairs missing per day')
+    plt.ylabel('Probability')
+    plt.title(theorytitle)
+    plt.grid(True)
+    
+    #Overplotting the statistical quantities
+    #avg + Median lines
+    plt.axvline(theoryavg, color = '#6602a8', linestyle = 'dashed', linewidth = 2)
+    plt.axvline(theorymedian, color = '#a602a8', linestyle = 'dashed', linewidth = 2)
+    
+    #plotting all the standard deviations
+    plt.axvline(theorysig1[0], color = '#fc0000', linestyle = 'dashed', linewidth = 2, label = '1 $\sigma$ C.I.')
+    plt.axvline(theorysig1[1], color = '#fc0000', linestyle = 'dashed', linewidth = 2, label = '1 $\sigma$ C.I.')
+    
+    plt.axvline(theorysig2[0], color = '#0004fc', linestyle = 'dashed', linewidth = 2, label = '2 $\sigma$ C.I.')
+    plt.axvline(theorysig2[1], color = '#0004fc', linestyle = 'dashed', linewidth = 2, label = '2 $\sigma$ C.I.')
+  
+    plt.axvline(theorysig3[0], color = '#107a00', linestyle = 'dashed', linewidth = 2, label = '3 $\sigma$ C.I.')
+    plt.axvline(theorysig3[1], color = '#107a00', linestyle = 'dashed', linewidth = 2, label = '3 $\sigma$ C.I.')
+    
+    plt.legend(bbox_to_anchor=(1.0, 1), loc='upper left')
+    
+    plt.savefig(savename + '.png')
+    plt.show()
+
     
 if __name__ == "__main__":
     
@@ -196,45 +228,15 @@ if __name__ == "__main__":
 
 ################################################################################   
     #Plotting directives
+    #H0 plot
+    theory_Plot('H_0 simulation', h0file, h0events, h0events_avg, h0median, h0sig1, h0sig2, h0sig3)
+   
+    #H1 plot
+    theory_Plot('H_1 simulation', h1file, h1events, h1events_avg, h1median, h1sig1, h1sig2, h1sig3)
     
-    title = 'Hairs missing per day'
-    #print(eventsTot)
-    maxval = int(max(eventsTot))
-    minval = int(min(eventsTot))
-    numbins = maxval - minval
-    
-    n, bins, patches = plt.hist(eventsTot, numbins, density = True, facecolor='g', alpha=0.75)
-    plt.xlabel('Hairs missing per day')
-    plt.ylabel('Probability')
-    plt.title(title)
-    plt.grid(True)
-    
-    plt.axvline(e_avg, color = 'k', linestyle = 'dashed', linewidth = 2)
-    #plt.text(e_avg + 0.025, 0.6, 'Mean',rotation = 'vertical' )
-    
-    plt.axvline(event_1sig[0], color = 'b', linestyle = 'dashed', linewidth = 2, label = '1 $\sigma$ C.I.')
-    #plt.text(median - 0.25, 0.6, 'Median',rotation = 'vertical' )
-    
-    plt.axvline(event_1sig[1], color = 'b', linestyle = 'dashed', linewidth = 2)
-    #plt.text(firstq - 0.25, 0.6, '1st Quartile',rotation = 'vertical' )
-    
-    plt.axvline(event_2sig[0], color = 'g', linestyle = 'dashed', linewidth = 2, label = '2 $\sigma$ C.I.')
-    #plt.text(thirdq + 0.1, 0.6, '3rd Quartile',rotation = 'vertical')
-
-    plt.axvline(event_2sig[1], color = 'g', linestyle = 'dashed', linewidth = 2)
-    
-    plt.axvline(event_3sig[0], color = 'r', linestyle = 'dashed', linewidth = 2, label = '3 $\sigma$ C.I.')
-    #plt.text(median - 0.25, 0.6, 'Median',rotation = 'vertical' )
-    
-    plt.axvline(event_3sig[1], color = 'r', linestyle = 'dashed', linewidth = 2)
-    #plt.text(firstq - 0.25, 0.6, '1st Quartile',rotation = 'vertical' )
-    
-    plt.legend(bbox_to_anchor=(1.0, 1), loc='upper left')
-    
-    plt.savefig(InputFile[:-3]+'png')
-    plt.show()
-
-############################################################################
+    #Data Plot
+    theory_Plot('Data', datafile, dataevents, dataevents_avg, datamedian, datasig1, datasig2, datasig3)
+#####################################################################################
     # Making the Log Likelihood ratios
     # My LogLikelihoodRatio (LLR) 
     lam0 = 5 #hairs/day natural
