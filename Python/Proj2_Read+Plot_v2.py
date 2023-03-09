@@ -2,16 +2,18 @@
 
 # imports of external packages to use in our code
 import sys # sys to read the commandline flags and respond
-import math # To do math stuff currently unused
+#import math # To do math stuff currently unused
 import numpy as np # to do other math stuff
 import matplotlib.pyplot as plt # To make a pretty plot
+#import Random
 #import scipy.stats as st # Including scipy for its stat package
 plt.figure(figsize = (14, 10), dpi = 100)   
 
-# import our MySort class from PHSX815_Project1/MySort.py file
+# import our MySort  and DiscretePoissonProb from PHSX815_Project1 folder
 sys.path.append("C:\\Users\\bergd\\Desktop\\github")#\\PHSX815_Project1") # For running in the IDE console
 sys.path.append('/mnt/c/Users/bergd/Desktop/github') # For running in the Ubuntu terminal
-from PHSX815_Project1.MySort import MySort
+from PHSX815_Project2.Python.MySort import MySort
+from PHSX815_Project2.Python.Random import Random
 
 def data_import(file):
     #initialize
@@ -40,7 +42,6 @@ def data_import(file):
     #Returning the rate, number of pull, number of experiments, and the actual results
     return rate, Nmeas, Nexp, events;
 
-
 def stats(events):
     #initialzie mean, median, and various sigma vars
     median = 0
@@ -53,8 +54,8 @@ def stats(events):
     sig3 = []
     
     #calculating the median
-    medianx = len(events) // 2
-    oddlength = len(events) % 2
+    medianx = int(len(events) // 2 )
+    oddlength = int(len(events) % 2)
     
     if oddlength:
         median = events[medianx] 
@@ -65,9 +66,9 @@ def stats(events):
     mean = sum(events)/len(events)
     
     #calculate sigma
-    sig68x = (len(events) * sig68) // 2 
-    sig95x = (len(events) * sig95) // 2
-    sig99x = (len(events) * sig99) // 2
+    sig68x = int((len(events) * sig68) // 2 )
+    sig95x = int((len(events) * sig95) // 2 )
+    sig99x = int((len(events) * sig99) // 2 )
     
     sig1 = [events[medianx-sig68x], events[medianx+sig68x]]
     sig2 = [events[medianx-sig95x], events[medianx+sig95x]]
@@ -96,18 +97,19 @@ def theory_Plot(theorytitle, savename, theoryevents, theoryavg = -1, theorymedia
     
     #plotting all the standard deviations
     plt.axvline(theorysig1[0], color = '#fc0000', linestyle = 'dashed', linewidth = 2, label = '1 $\sigma$ C.I.')
-    plt.axvline(theorysig1[1], color = '#fc0000', linestyle = 'dashed', linewidth = 2, label = '1 $\sigma$ C.I.')
+    plt.axvline(theorysig1[1], color = '#fc0000', linestyle = 'dashed', linewidth = 2)
     
     plt.axvline(theorysig2[0], color = '#0004fc', linestyle = 'dashed', linewidth = 2, label = '2 $\sigma$ C.I.')
-    plt.axvline(theorysig2[1], color = '#0004fc', linestyle = 'dashed', linewidth = 2, label = '2 $\sigma$ C.I.')
+    plt.axvline(theorysig2[1], color = '#0004fc', linestyle = 'dashed', linewidth = 2)
   
     plt.axvline(theorysig3[0], color = '#107a00', linestyle = 'dashed', linewidth = 2, label = '3 $\sigma$ C.I.')
-    plt.axvline(theorysig3[1], color = '#107a00', linestyle = 'dashed', linewidth = 2, label = '3 $\sigma$ C.I.')
+    plt.axvline(theorysig3[1], color = '#107a00', linestyle = 'dashed', linewidth = 2)
     
     plt.legend(bbox_to_anchor=(1.0, 1), loc='upper left')
     
     plt.savefig(savename + '.png')
     plt.show()
+    return nbins
 
     
 if __name__ == "__main__":
@@ -129,6 +131,7 @@ if __name__ == "__main__":
     h0data = np.random.randint(100, size=(5))
     h1data = np.random.randint(100, size=(5))
     data = np.random.randint(100, size=(5))
+    poiprobcalc = Random()
     
     #Check the command line flags. Current options are to give only the file name and the help flag, -h
     for i in range(1,len(sys.argv)):
@@ -178,8 +181,7 @@ if __name__ == "__main__":
     dataevents = [] # All measurements from the data file
     h1events = [] # All measurements from the H1 file
     h0events = [] # All measurements from the H0 file
-    
-    
+        
     dataevents_avg = 0 # Measurements average for the data file
     h0events_avg = 0 # Measurements average for the h0 file
     h1events_avg = 0 # Measurements average for the h1 file
@@ -200,13 +202,13 @@ if __name__ == "__main__":
     h1sig2 = []
     h1sig3 = []
     
-    sig1 = 0.68 
+    sig1 = 0.68 #Sigma values initialization
     sig2 = 0.95
     sig3 = 0.99
     
 ###############################################################################
     #importing data
-    datarate, dataNmeas, dataNexp, eventsdata = data_import(datafile) #import data file 
+    datarate, dataNmeas, dataNexp, dataevents = data_import(datafile) #import data file 
     h0rate, h0Nmeas, h0Nexp, h0events = data_import(h0file) # H0 import
     h1rate, h1Nmeas, h1Nexp, h1events = data_import(h1file) # H1 import
               
@@ -229,150 +231,37 @@ if __name__ == "__main__":
 ################################################################################   
     #Plotting directives
     #H0 plot
-    theory_Plot('H_0 simulation', h0file, h0events, h0events_avg, h0median, h0sig1, h0sig2, h0sig3)
+    h0bins = theory_Plot('H_0 simulation', h0file, h0events, h0events_avg, h0median, h0sig1, h0sig2, h0sig3)
    
     #H1 plot
-    theory_Plot('H_1 simulation', h1file, h1events, h1events_avg, h1median, h1sig1, h1sig2, h1sig3)
+    h1bins = theory_Plot('H_1 simulation', h1file, h1events, h1events_avg, h1median, h1sig1, h1sig2, h1sig3)
     
     #Data Plot
-    theory_Plot('Data', datafile, dataevents, dataevents_avg, datamedian, datasig1, datasig2, datasig3)
+    databins = theory_Plot('Data', datafile, dataevents, dataevents_avg, datamedian, datasig1, datasig2, datasig3)
 #####################################################################################
-    # Making the Log Likelihood ratios
-    # My LogLikelihoodRatio (LLR) 
-    lam0 = 5 #hairs/day natural
-    lam1 = 15 #hairs/day gnomes    
+    #Log Likelihood portion
+   
+    #Calculate the LLR if H0 is true given the H0 distribution
+    LLR_H0 = [poiprobcalc.DiscretePoissonProb(h0rate, i)/poiprobcalc.DiscretePoissonProb(h1rate, i) for i in h0events]
+    #Calculate the LLR if H1 is true given the H1 distribution
+    LLR_H1 = [poiprobcalc.DiscretePoissonProb(h1rate, i)/poiprobcalc.DiscretePoissonProb(h0rate, i) for i in h1events]
+   
+    #Calculate the LLR for H0 for the data distribution
+    Actual_H0 = [poiprobcalc.DiscretePoissonProb(datarate, i)/poiprobcalc.DiscretePoissonProb(h0rate, i) for i in dataevents]   
+    #Calculate the LLR for H0 for the data distribution
+    Actual_H1 = [poiprobcalc.DiscretePoissonProb(datarate, i)/poiprobcalc.DiscretePoissonProb(h1rate, i) for i in dataevents]
+
+    #Plotting the LLR stuff
+    nh0, binsh0, patchesh0 = plt.hist(LLR_H0, h0bins, density = True, facecolor='#ff0000', alpha = 0.75)
+    nh1, binsh1, patchesh1 = plt.hist(LLR_H1, h1bins, density = True, facecolor='#0000ff', alpha = 0.75)
     
-    haveH0 = False
-    haveH1 = False
-
-
-    # default single coin-toss probability for hypothesis 0
-    p0 = 0.5
-
-    # default single coin-toss probability for hypothesis 1
-    p1 = 0.9
-
-    haveH0 = False
-    haveH1 = False
-
-    if '-lam0' in sys.argv:
-        p = sys.argv.index('-lam0')
-        ptemp = float(sys.argv[p+1])
-        if ptemp >= 0:
-            p0 = ptemp
-    if '-lam1' in sys.argv:
-        p = sys.argv.index('-lam1')
-        ptemp = float(sys.argv[p+1])
-        if ptemp >= 0:
-            p1 = ptemp
-    if '-input0' in sys.argv:
-        p = sys.argv.index('-input0')
-        InputFile0 = sys.argv[p+1]
-        haveH0 = True
-    if '-input1' in sys.argv:
-        p = sys.argv.index('-input1')
-        InputFile1 = sys.argv[p+1]
-        haveH1 = True
-    
-    Ndays = 1 #Ntoss = 1
-    Npass0 = []
-    LogLikeRatio0 = []
-    Npass1 = []
-    LogLikeRatio1 = []
-
-    Npass_min = 1e8
-    Npass_max = -1e8
-    LLR_min = 1e8
-    LLR_max = -1e8
-        
-    with open(InputFile0) as ifile:
-        for line in ifile:
-            lineVals = line.split()
-            Ndays = len(lineVals)
-            Npass = 0
-            LLR = 0
-            
-            hair_min = min(lineVals)
-            hair_max = max(lineVals)
-            
-            for i in range(hair_min, hair_max + 1):
-                val_index = eventsTot.index(i)
-            
-            for v in lineVals:
-                Npass += float(v)
-                
-                
-                
-                # adding LLR for this toss
-                if float(v) >= 1:
-                    LLR += math.log( p1/p0 )
-                else:
-                    LLR += math.log( (1.-p1)/(1.-p0) )
-                    
-            if Npass < Npass_min:
-                Npass_min = Npass
-            if Npass > Npass_max:
-                Npass_max = Npass
-            if LLR < LLR_min:
-                LLR_min = LLR
-            if LLR > LLR_max:
-                LLR_max = LLR
-            Npass0.append(Npass)
-            LogLikeRatio0.append(LLR)
-
-    if haveH1:
-        with open(InputFile1) as ifile:
-            for line in ifile:
-                lineVals = line.split()
-                Ntoss = len(lineVals)
-                Npass = 0
-                LLR = 0
-                for v in lineVals:
-                    Npass += float(v);
-                    # adding LLR for this toss
-                    if float(v) >= 1:
-                        LLR += math.log( p1/p0 )
-                    else:
-                        LLR += math.log( (1.-p1)/(1.-p0) )
-
-                if Npass < Npass_min:
-                    Npass_min = Npass
-                if Npass > Npass_max:
-                    Npass_max = Npass
-                if LLR < LLR_min:
-                    LLR_min = LLR
-                if LLR > LLR_max:
-                    LLR_max = LLR
-                Npass1.append(Npass)
-                LogLikeRatio1.append(LLR)
-
-    title = str(Ntoss) +  " tosses / experiment"
-    
-    # make Npass figure
-    plt.figure()
-    plt.hist(Npass0, Ntoss+1, density=True, facecolor='b', alpha=0.5, label="assuming $\\mathbb{H}_0$")
-    if haveH1:
-        plt.hist(Npass1, Ntoss+1, density=True, facecolor='g', alpha=0.7, label="assuming $\\mathbb{H}_1$")
-        plt.legend()
-
-    plt.xlabel('$\\lambda = N_{pass}$')
-    plt.ylabel('Probability')
-    plt.title(title)
-    plt.grid(True)
-
+    plt.savefig('LLRdistributionsh0_h1.png')
     plt.show()
-
-    # make LLR figure
-    plt.figure()
-    plt.hist(LogLikeRatio0, Ntoss+1, density=True, facecolor='b', alpha=0.5, label="assuming $\\mathbb{H}_0$")
-    if haveH1:
-        plt.hist(LogLikeRatio1, Ntoss+1, density=True, facecolor='g', alpha=0.7, label="assuming $\\mathbb{H}_1$")
-        plt.legend()
-
-    plt.xlabel('$\\lambda = \\log({\\cal L}_{\\mathbb{H}_{1}}/{\\cal L}_{\\mathbb{H}_{0}})$')
-    plt.ylabel('Probability')
-    plt.title(title)
-    plt.grid(True)
-
+    
+    #Plotting the LLR stuff for our contrived data
+    nh0, binsh0, patchesh0 = plt.hist(Actual_H0, databins, density = True, facecolor='#ff0000', alpha = 0.75)
+    nh1, binsh1, patchesh1 = plt.hist(Actual_H1, databins, density = True, facecolor='#0000ff', alpha = 0.75)
+    
+    plt.savefig('LLRdatah0_h1.png')
     plt.show()
     
