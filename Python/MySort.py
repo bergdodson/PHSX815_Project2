@@ -15,7 +15,7 @@ import numpy as np
 # import our Random class from python/Random.py file
 sys.path.append("C:\\Users\\bergd\\Desktop\\github")#\\PHSX815_Project1") # For running in the IDE console
 sys.path.append('/mnt/c/Users/bergd/Desktop/github') # For running in the Ubuntu terminal
-from PHSX815_Project1.Random import Random
+import MyRandom as Ran
 
 #################
 # MySort class
@@ -26,7 +26,7 @@ class MySort:
 
     # initialization method for Random class
     def __init__(self, seed = 5555):
-        self.m_random = Random(seed)
+        self.m_random = Ran.Random(seed)
 
     # sorts array using bubble sort
     def BubbleSort(self, array):

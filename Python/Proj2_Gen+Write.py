@@ -7,7 +7,7 @@ import sys # Want sys to be able to read in command line flags
 # import our Random class from python/Random.py file
 sys.path.append("C:\\Users\\bergd\\Desktop\\github")#\\PHSX815_Project1") # For running in the IDE console
 sys.path.append('/mnt/c/Users/bergd/Desktop/github') # For running in the Ubuntu terminal
-from PHSX815_Project1.Random import Random
+import Random_Proj2 as ran
 
 
 # Starting the program
@@ -38,17 +38,20 @@ if __name__ == "__main__":
 
     # output file defaults
     doOutputFile = False
+    doRateFile = False
+    #gamma variables for the numpy distribution
+    a = 1
+    b = 1
 
     # read the user-provided seed from the command line (if there), run program with -h to see a description of what each flag does.
     # Code reflective of Rogan's CookieTimer.py code
     if '-seed' in sys.argv:
         p = sys.argv.index('-seed')
         seed = sys.argv[p+1]
-    if '-rate' in sys.argv:
-        p = sys.argv.index('-rate')
-        ptemp = float(sys.argv[p+1])
-        if ptemp > 0:
-            rate = ptemp
+    if '-rateFile' in sys.argv:
+        p = sys.argv.index('-rateFile')
+        rateFileName = str(sys.argv[p+1])
+        doRateFile = True
     if '-Nmeas' in sys.argv:
         p = sys.argv.index('-Nmeas')
         Nt = int(sys.argv[p+1])
@@ -59,6 +62,12 @@ if __name__ == "__main__":
         Ne = int(sys.argv[p+1])
         if Ne > 0:
             Nexp = Ne
+    if '-alpha' in sys.argv:
+        p = sys.argv.index('-alpha')
+        a = float(sys.argv[p+1])
+    if '-beta' in sys.argv:
+        p = sys.argv.index('-beta')
+        b = float(sys.argv[p+1])
     if '-output' in sys.argv:
         p = sys.argv.index('-output')
         OutputFileName = sys.argv[p+1]
@@ -69,19 +78,56 @@ if __name__ == "__main__":
     # Code Reflective of Rogan's CookieTimer.py code 
 
     # class instance of our Random class using seed
-    random = Random(seed)
+    random = ran.Random(seed)
 
-    if doOutputFile:
-        outfile = open(OutputFileName, 'w') # Create the file that will be record the rate and subsequent random number distribution
-        outfile.write(str(rate)+" \n") # writing the rate to the file.
-        for e in range(0,Nexp): # Do this loop for each experiment the user requested
-            for t in range(0,Nmeas): # Do this loop for each measurement the user requested
-                outfile.write(str(random.DiscretePoisson(rate))+" ") # Get and record a number from the random number distribution
-            outfile.write(" \n") # Create a new line at the end of the experiment
-        outfile.close() # Close the file
-    else:
-        print(rate)
-        for e in range(0,Nexp):# Do this loop for each experiment the user requested
-            for t in range(0,Nmeas):# Do this loop for each measurement the user requested
-                print(random.DiscretePoisson(rate), end=' ') # Get and record a number from the random number distribution
-            print(" ")
+    #Getting the rates from the gamma distribution
+    rates = []
+    if doRateFile and doOutputFile:
+        rateFile = open(rateFileName, 'w')
+        outputFile = open(OutputFileName, 'w')
+
+        #Getting the sampled rates for each individual measurement and recording them in the file
+        for i in range(0, Nexp):
+            for j in range(0, Nmeas):
+                rate = random.Gamma(a, b)
+                rates.append(rate)
+                rateFile.write(str(rate) + ' ')
+                outputFile.write(str(random.Poisson(rate)) + ' ')
+            rateFile.write('\n')
+            outputFile.write('\n')
+        rateFile.close()
+        outputFile.close()
+
+    elif doRateFile and not doOutputFile:
+        rateFile = open(rateFileName, 'w')
+
+        #Getting the sampled rates for each individual measurement and recording them in the file
+        for i in range(0, Nexp):
+            for j in range(0, Nmeas):
+                rate = random.Gamma(a, b)
+                rates.append(rate)
+                rateFile.write(str(rate) + ' ')
+            rateFile.write('\n')
+        rateFile.close()
+
+    elif not doRateFile and doOutputFile:
+        outputFile = open(OutputFileName, 'w')
+
+        #Getting the sampled rates for each individual measurement and recording them in the file
+        for i in range(0, Nexp):
+            for j in range(0, Nmeas):
+                rate = random.Gamma(a, b)
+                rates.append(rate)
+                outputFile.write(str(random.Poisson(rate)) + ' ')
+            outputFile.write('\n')
+        outputFile.close()
+    
+    else: 
+        for i in range(0, Nexp):
+            for j in range(0, Nmeas):
+                rate = random.Gamma(a, b)
+                rates.append(rate)
+                print(str(random.Poisson(rate)), end = ' ')
+            print()
+
+
